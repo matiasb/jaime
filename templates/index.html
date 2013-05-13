@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block sidebar %}
+{% endblock %}
+
+{% block content %}
+
+    <div class="page-header">
+        <h1>
+            <img src="{{ url_for('static', filename='img/jaime-black-100.png') }}"
+                 style="vertical-align: bottom;" />
+            Jaime <small>Extremely simple job runner</small>
+        </h1>
+    </div>
+
+
+    {% if jobs %}
+    <ul class="nav nav-list">
+        <li class="nav-header">Available jobs</li>
+        {% for slug, job in jobs.items() %}
+            <li>
+                <a href="{{ url_for('setup_new_instance', slug=slug) }}">{{ job.title }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+{% endblock %}

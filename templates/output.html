@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block htmltitle %}{{ job.title }} - {% endblock%}
+
+{% block title %}
+    <h3>{{ job.title }} <small>{{ instance_id }}</small></h3>
+{% endblock %}
+
+{% block content %}
+<pre>
+{{ output }}
+</pre>
+
+{% endblock %}

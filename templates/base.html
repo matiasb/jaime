@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>{% block htmltitle %}{% endblock%}Jaime</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    </head>
+
+    <body>
+
+    <div class="container-fluid">
+
+        <div class="navbar navbar-inverse">
+            <div class="navbar-inner">
+                <a class="brand" href="/">Jaime</a>
+            </div>
+        </div>
+
+        <div class="row-fluid">
+            <div class="span2">
+                {% block sidebar %}
+                <div style="margin-left:25px">
+                    <img src="{{ url_for('static', filename='img/jaime-black-80.png') }}"/>
+                </div>
+                <ul class="nav nav-list">
+                    <li class="nav-header">Available jobs</li>
+                    {% for slug, job in jobs.items() %}
+                        <li>
+                            <a href="{{ url_for('setup_new_instance', slug=slug) }}">{{ job.title }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% endblock %}
+            </div>
+
+            <div class="span10">
+
+                {% block title %}
+                {% endblock %}
+
+                {% for category, message in get_flashed_messages(with_categories=true) %}
+                    <div class="alert{% if category %} alert-{{ category }}{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

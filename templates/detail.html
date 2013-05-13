@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block htmltitle %}{{ job.title }} - {% endblock%}
+
+{% block title %}
+    <h3>{{ job.title }}
+    {% if job.description %}
+        <br/><small>{{ job.description }}</small>
+    {% endif %}
+    </h3>
+{% endblock %}
+
+{% block content %}
+    <form action="" method="POST" enctype="multipart/form-data" class='form-horizontal'>
+        <fieldset>
+        <legend>Upload the required files</legend>
+        {% for expected in job.expected_files %}
+            <div class="control-group">
+                <label class="control-label"><strong>{{ expected }}</strong></label>
+                <div class="controls">
+                    <input type="file" name="file_{{ expected }}" />
+                </div>
+            </div>
+        {% endfor %}
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit">Start job</button>
+        </div>
+        </fieldset>
+    </form>
+{% endblock %}
