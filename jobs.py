@@ -68,7 +68,7 @@ class Instance(object):
 
         if tarfile.is_tarfile(dest_file):
             self._process_compressed_file(
-                tarfile.TarFile, 'getnames', dest_file, 'r:gz')
+                tarfile.open, 'getnames', dest_file, 'r:gz')
         elif zipfile.is_zipfile(dest_file):
             self._process_compressed_file(
                 zipfile.ZipFile, 'namelist', dest_file, 'r')
