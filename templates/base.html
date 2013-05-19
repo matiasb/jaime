@@ -24,9 +24,9 @@
                 </div>
                 <ul class="nav nav-list">
                     <li class="nav-header">Available jobs</li>
-                    {% for slug, job in jobs.items() %}
+                    {% for job in jobs %}
                         <li>
-                            <a href="{{ url_for('setup_new_instance', slug=slug) }}">{{ job.title }}</a>
+                            <a href="{{ url_for('setup_new_instance', slug=job.slug) }}">{{ job.title }}</a>
                         </li>
                     {% endfor %}
                 </ul>

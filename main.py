@@ -1,10 +1,6 @@
-import os
-import shutil
-import subprocess
-import uuid
 
+import jobs
 import settings
-from utils import working_directory
 
 import flask
 from flask import flash, redirect, render_template, request, url_for
@@ -17,8 +13,8 @@ app.config.from_object(settings)
 @app.context_processor
 def available_jobs():
     """Make jobs available to templates through a context processor."""
-    jobs = settings.JOBS
-    return dict(jobs=jobs)
+    available_jobs = [jobs.Job(slug) for slug in settings.JOBS]
+    return dict(jobs=available_jobs)
 
 
 @app.errorhandler(404)
@@ -37,26 +33,30 @@ def index():
 def setup_new_instance(slug):
     """Set up a new job instance."""
     error = None
-    job = settings.JOBS.get(slug, None)
 
-    if job is None:
+    try:
+        job = jobs.Job(slug)
+    except DoesNotExist:
         redirect(url_for('not_found'))
 
     if request.method == 'POST':
-        instance_id = uuid.uuid4()
-        base_dir = os.path.join(settings.JOBS_DIR, slug, job['base'])
-        test_dir = os.path.join(settings.JOBS_DIR, slug, str(instance_id))
-
-        shutil.copytree(base_dir, test_dir)
-        for field, uploaded_file in request.files.iteritems():
-            if uploaded_file.filename not in job['expected_files']:
-                error = 'Incorrect filename: %s' % uploaded_file.filename
-                break
-            uploaded_file.save(os.path.join(test_dir, uploaded_file.filename))
+        instance = jobs.Instance(job)
+        compressed = request.files.get('compressed_file', None)
+        if compressed:
+            try:
+                instance.setup_from_compressed_file(compressed)
+            except Exception as e:
+                error = str(e)
+        else:
+            uploaded_files = [f for f in request.files.values() if bool(f)]
+            try:
+                instance.setup_from_files(*uploaded_files)
+            except Exception as e:
+                error = str(e)
 
         if error is None:
             return redirect(
-                url_for('run_output', instance_id=instance_id, slug=slug))
+                url_for('run_output', instance_id=instance.id, slug=slug))
 
         flash(error, category='error')
 
@@ -66,23 +66,18 @@ def setup_new_instance(slug):
 @app.route('/job/<slug>/<instance_id>')
 def run_output(slug, instance_id):
     """Run job instance and display output."""
-    job = settings.JOBS.get(slug, None)
-
-    if job is None:
+    try:
+        job = jobs.Job(slug)
+    except DoesNotExist:
         redirect(url_for('not_found'))
 
-    test_dir = os.path.join(settings.JOBS_DIR, slug, instance_id)
     try:
-        with working_directory(test_dir):
-            try:
-                output = subprocess.check_output(
-                    job['command'], stderr=subprocess.STDOUT)
-            except subprocess.CalledProcessError as e:
-                output = e.output
-    except OSError:
-        output = "Error trying to run command."
+        instance = job.get_instance(instance_id)
+    except DoesNotExist:
+        redirect(url_for('not_found'))
 
-    output = output.decode('utf-8')
+    output = instance.run()
+
     return render_template(
         'output.html', instance_id=instance_id, job=job, output=output)
 
