@@ -39,17 +39,17 @@ class Job(object):
 class Instance(object):
 
     def __init__(self, job, instance_id=None):
+        self.job = job
         if instance_id:
             self.id = instance_id
             if not os.path.exists(self.test_dir):
                 raise DoesNotExist('Job instance does not exist')
         else:
-            self.id = uuid.uuid4()
-        self.job = job
+            self.id = str(uuid.uuid4())
 
     @property
     def test_dir(self):
-        return os.path.join(settings.JOBS_DIR, self.job.slug, str(self.id))
+        return os.path.join(settings.JOBS_DIR, self.job.slug, self.id)
 
     def _process_compressed_file(self, cls, list_method, filepath, mode):
         compressed_file = cls(filepath, mode=mode)

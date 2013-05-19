@@ -36,7 +36,7 @@ def setup_new_instance(slug):
 
     try:
         job = jobs.Job(slug)
-    except DoesNotExist:
+    except jobs.DoesNotExist:
         redirect(url_for('not_found'))
 
     if request.method == 'POST':
@@ -68,12 +68,8 @@ def run_output(slug, instance_id):
     """Run job instance and display output."""
     try:
         job = jobs.Job(slug)
-    except DoesNotExist:
-        redirect(url_for('not_found'))
-
-    try:
-        instance = job.get_instance(instance_id)
-    except DoesNotExist:
+        instance = job.get_instance(instance_id)        
+    except jobs.DoesNotExist:
         redirect(url_for('not_found'))
 
     output = instance.run()
