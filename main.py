@@ -18,7 +18,8 @@ def available_jobs():
 
 
 @app.errorhandler(404)
-def not_found(error):
+@app.route('/not-found')
+def not_found(error=None):
     """Page not found."""
     return render_template('not_found.html'), 404
 
@@ -37,7 +38,7 @@ def setup_new_instance(slug):
     try:
         job = jobs.Job(slug)
     except jobs.DoesNotExist:
-        redirect(url_for('not_found'))
+        return redirect(url_for('not_found'))
 
     if request.method == 'POST':
         instance = jobs.Instance(job)
@@ -70,7 +71,7 @@ def run_output(slug, instance_id):
         job = jobs.Job(slug)
         instance = job.get_instance(instance_id)        
     except jobs.DoesNotExist:
-        redirect(url_for('not_found'))
+        return redirect(url_for('not_found'))
 
     output = instance.run()
 
