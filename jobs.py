@@ -23,7 +23,7 @@ class Job(object):
 
         self.slug = slug
         self.title = job.get('title', '')
-        self.title = job.get('description', '')
+        self.description = job.get('description', '')
         self.base_dirname = job.get('base')
         self.expected_files = job.get('expected_files', [])
         self.command = job.get('command', [])
