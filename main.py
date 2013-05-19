@@ -69,11 +69,12 @@ def run_output(slug, instance_id):
     """Run job instance and display output."""
     try:
         job = jobs.Job(slug)
-        instance = job.get_instance(instance_id)        
+        instance = job.get_instance(instance_id)
     except jobs.DoesNotExist:
         return redirect(url_for('not_found'))
 
-    output = instance.run()
+    timeout = getattr(settings, 'JOBS_TIMEOUT', None)
+    output = instance.run(timeout=timeout)
 
     return render_template(
         'output.html', instance_id=instance_id, job=job, output=output)

@@ -86,14 +86,21 @@ class Instance(object):
             dest_file = os.path.join(self.test_dir, f.filename)
             f.save(dest_file)
 
-    def run(self):
+    def run(self, timeout=None):
+        command = self.job.command
+        if timeout is not None:
+            command = ['timeout', str(timeout)] + self.job.command
+
         try:
             with working_directory(self.test_dir):
                 try:
                     output = subprocess.check_output(
-                        self.job.command, stderr=subprocess.STDOUT)
+                        command, stderr=subprocess.STDOUT)
                 except subprocess.CalledProcessError as e:
                     output = e.output
+                    if e.returncode == 124:
+                        # return code from timeout command when expired
+                        output += '***** TIMEOUT ERROR *****'
         except OSError:
             output = "Error trying to run command."
 
