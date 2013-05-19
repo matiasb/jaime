@@ -55,7 +55,7 @@ class Instance(object):
         compressed_file = cls(filepath, mode=mode)
         namelist = getattr(compressed_file, list_method, lambda: [])
         if set(namelist()) != set(self.job.expected_files):
-            raise Exception('Wrong compressed file contents')
+            raise Exception('Unexpected compressed file content')
         else:
             compressed_file.extractall(self.test_dir)
         compressed_file.close()
@@ -73,7 +73,7 @@ class Instance(object):
             self._process_compressed_file(
                 zipfile.ZipFile, 'namelist', dest_file, 'r')
         else:
-            raise Exception('Unsupported file')
+            raise Exception('Not supported compressed file')
 
     def setup_from_files(self, *files):
         shutil.copytree(self.job.base_dir, self.test_dir)
