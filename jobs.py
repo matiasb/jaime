@@ -120,11 +120,11 @@ class Instance(object):
         try:
             with working_directory(self.test_dir):
                 try:
-                    output = subprocess.check_output(
-                        command, stderr=subprocess.STDOUT)
-
                     if not os.path.exists(self.output_dir):
                         os.makedirs(self.output_dir)
+
+                    output = subprocess.check_output(
+                        command, stderr=subprocess.STDOUT)
 
                     for filename in self.job.output_files:
                         if os.path.exists(filename):
