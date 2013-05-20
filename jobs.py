@@ -26,6 +26,7 @@ class Job(object):
         self.description = job.get('description', '')
         self.base_dirname = job.get('base')
         self.expected_files = job.get('expected_files', [])
+        self.output_files = job.get('output_files', [])
         self.command = job.get('command', [])
 
     @property
@@ -48,8 +49,33 @@ class Instance(object):
             self.id = str(uuid.uuid4())
 
     @property
+    def output_file(self):
+        return os.path.join(self.output_dir, 'output.log')
+
+    @property
+    def output_dir(self):
+        return os.path.join(settings.UPLOAD_FOLDER, self.job.slug, self.id)
+
+    @property
     def test_dir(self):
         return os.path.join(settings.JOBS_DIR, self.job.slug, self.id)
+
+    @property
+    def completed(self):
+        return os.path.exists(self.output_file)
+
+    def _write_output_to_file(self, data):
+        with open(self.output_file, 'w') as f:
+            f.write(data)
+
+    @property
+    def output(self):
+        output = None
+        if os.path.exists(self.output_file):
+            with open(self.output_file, 'r') as f:
+                output = f.read()
+            output = output.decode('utf-8')
+        return output
 
     def _process_compressed_file(self, cls, list_method, filepath, mode):
         compressed_file = cls(filepath, mode=mode)
@@ -96,6 +122,15 @@ class Instance(object):
                 try:
                     output = subprocess.check_output(
                         command, stderr=subprocess.STDOUT)
+
+                    if not os.path.exists(self.output_dir):
+                        os.makedirs(self.output_dir)
+
+                    for filename in self.job.output_files:
+                        if os.path.exists(filename):
+                            dest_file = os.path.join(self.output_dir, filename)
+                            shutil.copyfile(filename, dest_file)
+
                 except subprocess.CalledProcessError as e:
                     output = e.output
                     if e.returncode == 124:
@@ -104,5 +139,6 @@ class Instance(object):
         except OSError:
             output = "Error trying to run command."
 
+        self._write_output_to_file(output)
         output = output.decode('utf-8')
         return output

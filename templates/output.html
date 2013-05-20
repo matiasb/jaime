@@ -7,6 +7,21 @@
 {% endblock %}
 
 {% block content %}
+
+<p>
+    <span class="label label-info">Download output file</span>
+    <a href="{{ url_for('output_file', slug=job.slug, instance_id=instance_id, filename='output.log') }}">
+        job output
+    </a>
+
+    {% for filename in job.output_files %}
+        | <a href="{{ url_for('output_file', slug=job.slug, instance_id=instance_id, filename=filename) }}">
+            {{ filename }}
+        </a>
+    {% endfor %}
+</p>
+
+
 <pre>
 {{ output }}
 </pre>

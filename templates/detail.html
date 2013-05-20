@@ -14,6 +14,16 @@
     <form action="" method="POST" enctype="multipart/form-data" class='form-horizontal'>
         <fieldset>
         <legend>Upload the required files</legend>
+
+        <div class="control-group">
+            <label class="control-label"><strong>.zip | .tar.gz</strong></label>
+            <div class="controls">
+                <input type="file" name="compressed_file" />
+                <span class="help-block">Upload a compressed file containing <strong>only</strong> the required files.</span>
+            </div>
+        </div>
+
+        <h6>... or upload each file individually</h6>
         {% for expected in job.expected_files %}
             <div class="control-group">
                 <label class="control-label"><strong>{{ expected }}</strong></label>
@@ -23,17 +33,8 @@
             </div>
         {% endfor %}
 
-        <hr/>
-        <div class="control-group">
-            <label class="control-label"><strong>or a .zip|.tar.gz</strong></label>
-            <div class="controls">
-                <input type="file" name="compressed_file" />
-                <span class="help-block">Upload a compressed file containing <strong>only</strong> the required files.</span>
-            </div>
-        </div>
-
         <div class="form-actions">
-            <button class="btn btn-primary" type="submit">Start job</button>
+            <button class="btn btn-primary" type="submit">Upload and start job</button>
         </div>
         </fieldset>
     </form>

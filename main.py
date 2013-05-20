@@ -1,9 +1,18 @@
+import os
 
 import jobs
 import settings
 
 import flask
-from flask import flash, redirect, render_template, request, url_for
+
+from flask import (
+    flash,
+    redirect,
+    render_template,
+    request,
+    send_from_directory,
+    url_for,
+)
 
 
 app = flask.Flask(__name__)
@@ -28,6 +37,13 @@ def not_found(error=None):
 def index():
     """Jaime home."""
     return render_template('index.html')
+
+
+@app.route('/job/<slug>/<instance_id>/logs/<filename>')
+def output_file(slug, instance_id, filename):
+    return send_from_directory(
+        app.config['UPLOAD_FOLDER'],
+        os.path.join(slug, instance_id, filename))
 
 
 @app.route('/job/<slug>', methods=['GET', 'POST'])
@@ -73,8 +89,13 @@ def run_output(slug, instance_id):
     except jobs.DoesNotExist:
         return redirect(url_for('not_found'))
 
-    timeout = getattr(settings, 'JOBS_TIMEOUT', None)
-    output = instance.run(timeout=timeout)
+    refresh = request.args.get('refresh', None)
+
+    if not instance.completed or refresh:
+        timeout = getattr(settings, 'JOBS_TIMEOUT', None)
+        output = instance.run(timeout=timeout)
+    else:
+        output = instance.output
 
     return render_template(
         'output.html', instance_id=instance_id, job=job, output=output)
