@@ -145,16 +145,17 @@ class Instance(object):
                     output = subprocess.check_output(
                         command, stderr=subprocess.STDOUT)
 
-                    for filename in self.job.output_files:
-                        if os.path.exists(filename):
-                            dest_file = os.path.join(self.output_dir, filename)
-                            shutil.copyfile(filename, dest_file)
-
                 except subprocess.CalledProcessError as e:
                     output = e.output
                     if e.returncode == 124:
                         # return code from timeout command when expired
                         output += '***** TIMEOUT ERROR *****'
+
+                finally:
+                    for filename in self.job.output_files:
+                        if os.path.exists(filename):
+                            dest_file = os.path.join(self.output_dir, filename)
+                            shutil.copyfile(filename, dest_file)
         except OSError:
             output = "Error trying to run command."
 
