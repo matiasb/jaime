@@ -14,6 +14,21 @@ class DoesNotExist(Exception):
     pass
 
 
+class InvalidCompressedFileError(Exception):
+
+    def __init__(self, missing=None, extra=None):
+        self.missing = missing
+        self.extra = extra
+
+    def __str__(self):
+        msg = 'Invalid content'
+        if self.missing:
+            msg += ': You are missing %s' % ', '.join(self.missing)
+        if self.extra:
+            msg += ' (unneeded files: %s)' % ', '.join(self.extra)
+        return msg
+
+
 class Job(object):
 
     def __init__(self, slug):
@@ -80,8 +95,12 @@ class Instance(object):
     def _process_compressed_file(self, cls, list_method, filepath, mode):
         compressed_file = cls(filepath, mode=mode)
         namelist = getattr(compressed_file, list_method, lambda: [])
+        expected = set(self.job.expected_files)
+        provided = set(namelist())
         if set(namelist()) != set(self.job.expected_files):
-            raise Exception('Unexpected compressed file content')
+            missing = expected - provided
+            extra = provided - expected
+            raise InvalidCompressedFileError(missing=missing, extra=extra)
         else:
             compressed_file.extractall(self.test_dir)
         compressed_file.close()
@@ -142,3 +161,6 @@ class Instance(object):
         self._write_output_to_file(output)
         output = output.decode('utf-8')
         return output
+
+    def remove(self):
+        shutil.rmtree(self.test_dir, ignore_errors=True)
