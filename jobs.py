@@ -136,31 +136,28 @@ class Instance(object):
         if timeout is not None:
             command = ['timeout', str(timeout)] + self.job.command
 
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
+
         try:
             with working_directory(self.test_dir):
-                try:
-                    if not os.path.exists(self.output_dir):
-                        os.makedirs(self.output_dir)
-
-                    output = subprocess.check_output(
-                        command, stderr=subprocess.STDOUT)
-
-                except subprocess.CalledProcessError as e:
-                    output = e.output
-                    if e.returncode == 124:
-                        # return code from timeout command when expired
-                        output += '***** TIMEOUT ERROR *****'
-
-                finally:
-                    for filename in self.job.output_files:
-                        if os.path.exists(filename):
-                            dest_file = os.path.join(self.output_dir, filename)
-                            shutil.copyfile(filename, dest_file)
+                with open(self.output_file, 'w') as f:
+                    return_code = subprocess.call(
+                        command, stdout=f, stderr=subprocess.STDOUT)
         except OSError:
             output = "Error trying to run command."
+        else:
+            output = self.output
 
-        self._write_output_to_file(output)
-        output = output.decode('utf-8')
+            if return_code == 124:
+                # return code from timeout command when expired
+                output += '***** TIMEOUT ERROR *****'
+
+            for filename in self.job.output_files:
+                if os.path.exists(filename):
+                    dest_file = os.path.join(self.output_dir, filename)
+                    shutil.copyfile(filename, dest_file)
+
         return output
 
     def remove(self):
