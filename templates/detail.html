@@ -16,22 +16,27 @@
         <legend>Upload the required files</legend>
 
         <div class="control-group">
-            <label class="control-label"><strong>.zip | .tar.gz</strong></label>
+            <label class="control-label"><strong>
+                {% if job.compressed_label %}{{ job.compressed_label}}{% else %}.zip | .tar.gz{% endif %}
+            </strong></label>
             <div class="controls">
                 <input type="file" name="compressed_file" />
                 <span class="help-block">Upload a compressed file containing <strong>only</strong> the required files.</span>
+                <span class="help-block">Required files: {{ job.expected_files|join(', ') }}.</span>
             </div>
         </div>
 
-        <h6>... or upload each file individually</h6>
-        {% for expected in job.expected_files %}
-            <div class="control-group">
-                <label class="control-label"><strong>{{ expected }}</strong></label>
-                <div class="controls">
-                    <input type="file" name="file_{{ expected }}" />
+        {% if job.individual_upload %}
+            <h6>... or upload each file individually</h6>
+            {% for expected in job.expected_files %}
+                <div class="control-group">
+                    <label class="control-label"><strong>{{ expected }}</strong></label>
+                    <div class="controls">
+                        <input type="file" name="file_{{ expected }}" />
+                    </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        {% endif %}
 
         <div class="form-actions">
             <button class="btn btn-primary" type="submit">Upload and start job</button>

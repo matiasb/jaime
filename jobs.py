@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import subprocess
 import tarfile
@@ -40,6 +41,17 @@ class Job(object):
         self.title = job.get('title', '')
         self.description = job.get('description', '')
         self.base_dirname = job.get('base')
+        self.individual_upload = job.get('allow_individual_upload', True)
+
+        compressed_file = job.get('compressed_file', None)
+        if compressed_file is not None and isinstance(compressed_file, tuple):
+            self.compressed_label = compressed_file[0]
+            self.compressed_name = compressed_file[1]
+        else:
+            self.compressed_label = compressed_file
+            self.compressed_name = None
+
+        self.compressed_file = job.get('expected_filename', None)
         self.expected_files = job.get('expected_files', [])
         self.output_files = job.get('output_files', [])
         self.command = job.get('command', [])
@@ -105,7 +117,13 @@ class Instance(object):
             compressed_file.extractall(self.test_dir)
         compressed_file.close()
 
+    def _validate_filename(self, regex, filename):
+        if regex is not None:
+            if not re.match(regex, filename):
+                raise Exception('Invalid filename')
+
     def setup_from_compressed_file(self, compressed):
+        self._validate_filename(self.job.compressed_name, compressed.filename)
         shutil.copytree(self.job.base_dir, self.test_dir)
 
         dest_file = os.path.join(self.test_dir, compressed.filename)
@@ -132,6 +150,7 @@ class Instance(object):
             f.save(dest_file)
 
     def run(self, timeout=None):
+        return_code = None
         command = self.job.command
         if timeout is not None:
             command = ['timeout', str(timeout)] + self.job.command

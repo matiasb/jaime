@@ -62,16 +62,18 @@ def setup_new_instance(slug):
         if compressed:
             try:
                 instance.setup_from_compressed_file(compressed)
-            except jobs.InvalidCompressedFileError as e:
+            except Exception as e:
                 error = str(e)
                 instance.remove()
-        else:
+        elif job.individual_upload:
             uploaded_files = [f for f in request.files.values() if bool(f)]
             try:
                 instance.setup_from_files(*uploaded_files)
             except Exception as e:
                 error = str(e)
                 instance.remove()
+        else:
+            error = 'Invalid job submission'
 
         if error is None:
             return redirect(
