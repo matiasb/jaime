@@ -3,11 +3,10 @@
 {% block htmltitle %}{{ job.title }} - {% endblock%}
 
 {% block title %}
-    <h3>{{ job.title }}
+    <h3>{{ job.title }}</h3>
     {% if job.description %}
-        <br/><small>{{ job.description }}</small>
+        <p><small>{{ job.description }}</small></p>
     {% endif %}
-    </h3>
 {% endblock %}
 
 {% block content %}
