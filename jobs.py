@@ -158,24 +158,24 @@ class Instance(object):
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
 
-        try:
-            with working_directory(self.test_dir):
+        with working_directory(self.test_dir):
+            try:
                 with open(self.output_file, 'w') as f:
                     return_code = subprocess.call(
                         command, stdout=f, stderr=subprocess.STDOUT)
-        except OSError:
-            output = "Error trying to run command."
-        else:
-            output = self.output
+            except OSError:
+                output = "Error trying to run command."
+            else:
+                output = self.output
 
-            if return_code == 124:
-                # return code from timeout command when expired
-                output += '***** TIMEOUT ERROR *****'
+                if return_code == 124:
+                    # return code from timeout command when expired
+                    output += '***** TIMEOUT ERROR *****'
 
-            for filename in self.job.output_files:
-                if os.path.exists(filename):
-                    dest_file = os.path.join(self.output_dir, filename)
-                    shutil.copyfile(filename, dest_file)
+                for filename in self.job.output_files:
+                    if os.path.exists(filename):
+                        dest_file = os.path.join(self.output_dir, filename)
+                        shutil.copyfile(filename, dest_file)
 
         return output
 
