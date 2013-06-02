@@ -78,7 +78,7 @@ class Instance(object):
 
     @property
     def output_file(self):
-        return os.path.join(self.output_dir, 'output.log')
+        return os.path.join(self.output_dir, settings.OUTPUT_FILENAME)
 
     @property
     def output_dir(self):
@@ -87,10 +87,6 @@ class Instance(object):
     @property
     def test_dir(self):
         return os.path.join(settings.JOBS_DIR, self.job.slug, self.id)
-
-    @property
-    def completed(self):
-        return os.path.exists(self.output_file)
 
     @property
     def output(self):
@@ -155,23 +151,22 @@ class Instance(object):
             os.makedirs(self.output_dir)
 
         with working_directory(self.test_dir):
-            try:
-                with codecs.open(self.output_file, 'w', 'utf-8') as f:
+            with codecs.open(self.output_file, 'w', 'utf-8') as f:
+                try:
                     return_code = subprocess.call(
                         command, stdout=f, stderr=subprocess.STDOUT)
-            except OSError:
-                output = "Error trying to run command."
-            else:
-                output = self.output
 
-                if return_code == 124:
-                    # return code from timeout command when expired
-                    output += '***** TIMEOUT ERROR *****'
+                    if return_code == 124:
+                        # return code from timeout command when expired
+                        f.write('\n***** TIMEOUT ERROR *****\n')
+                except OSError:
+                    f.write("Error trying to run command.")
 
-                for filename in self.job.output_files:
-                    if os.path.exists(filename):
-                        dest_file = os.path.join(self.output_dir, filename)
-                        shutil.copyfile(filename, dest_file)
+            for filename in self.job.output_files:
+                if os.path.exists(filename):
+                    dest_file = os.path.join(self.output_dir, filename)
+                    shutil.copyfile(filename, dest_file)
+
         return return_code
 
     def remove(self):

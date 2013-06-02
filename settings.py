@@ -6,6 +6,7 @@ PROJECT_DIR = os.path.dirname(__file__)
 DEBUG = True
 SECRET_KEY = "Your secret key here."
 
+OUTPUT_FILENAME = 'output.log'
 UPLOAD_FOLDER = os.path.join(PROJECT_DIR, 'output')
 MAX_CONTENT_LENGTH = 0.1 * 1024 * 1024
 

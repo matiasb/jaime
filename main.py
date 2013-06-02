@@ -96,15 +96,12 @@ def run_output(slug, instance_id):
     return_code = None
     refresh = request.args.get('refresh', None)
 
-    if not instance.completed or refresh:
+    if refresh:
         timeout = getattr(settings, 'JOBS_TIMEOUT', None)
         return_code = instance.run(timeout=timeout)
-    
-    output = instance.output
 
     return render_template(
-        'output.html', instance_id=instance_id, job=job, output=output,
-        return_code=return_code)
+        'output.html', instance=instance, return_code=return_code)
 
 
 if __name__ == '__main__':
