@@ -89,6 +89,10 @@ class Instance(object):
         return os.path.join(settings.JOBS_DIR, self.job.slug, self.id)
 
     @property
+    def completed(self):
+        return os.path.exists(self.output_file)
+
+    @property
     def output(self):
         output = None
         if os.path.exists(self.output_file):

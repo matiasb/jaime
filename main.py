@@ -96,7 +96,7 @@ def run_output(slug, instance_id):
     return_code = None
     refresh = request.args.get('refresh', None)
 
-    if refresh:
+    if not instance.completed or refresh:
         timeout = getattr(settings, 'JOBS_TIMEOUT', None)
         return_code = instance.run(timeout=timeout)
 
