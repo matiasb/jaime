@@ -3,8 +3,16 @@
 {% block htmltitle %}{{ job.title }} - {% endblock%}
 
 {% block title %}
-    <h3>{{ job.title }} <small>{{ instance_id }}</small></h3>
+    <h3>
+        {% if return_code == 0 %}
+            <img style="height:50px" src="{{ url_for('static', filename='img/green-light.png') }}" />
+        {% elif return_code > 0 %}
+            <img style="height:50px" src="{{ url_for('static', filename='img/red-light.png') }}" />
+        {% endif %}
+        {{ job.title }} <small>{{ instance_id }}</small>
+    </h3>
 {% endblock %}
+
 
 {% block content %}
 

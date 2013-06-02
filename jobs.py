@@ -92,10 +92,6 @@ class Instance(object):
     def completed(self):
         return os.path.exists(self.output_file)
 
-    def _write_output_to_file(self, data):
-        with codecs.open(self.output_file, 'w', 'utf-8') as f:
-            f.write(data)
-
     @property
     def output(self):
         output = None
@@ -176,8 +172,7 @@ class Instance(object):
                     if os.path.exists(filename):
                         dest_file = os.path.join(self.output_dir, filename)
                         shutil.copyfile(filename, dest_file)
-
-        return output
+        return return_code
 
     def remove(self):
         shutil.rmtree(self.test_dir, ignore_errors=True)
