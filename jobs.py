@@ -1,3 +1,4 @@
+import codecs
 import os
 import re
 import shutil
@@ -92,16 +93,15 @@ class Instance(object):
         return os.path.exists(self.output_file)
 
     def _write_output_to_file(self, data):
-        with open(self.output_file, 'w') as f:
+        with codecs.open(self.output_file, 'w', 'utf-8') as f:
             f.write(data)
 
     @property
     def output(self):
         output = None
         if os.path.exists(self.output_file):
-            with open(self.output_file, 'r') as f:
+            with codecs.open(self.output_file, 'r', 'utf-8') as f:
                 output = f.read()
-            output = output.decode('utf-8')
         return output
 
     def _process_compressed_file(self, cls, list_method, filepath, mode):
@@ -160,7 +160,7 @@ class Instance(object):
 
         with working_directory(self.test_dir):
             try:
-                with open(self.output_file, 'w') as f:
+                with codecs.open(self.output_file, 'w', 'utf-8') as f:
                     return_code = subprocess.call(
                         command, stdout=f, stderr=subprocess.STDOUT)
             except OSError:
