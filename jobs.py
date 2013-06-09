@@ -54,7 +54,8 @@ class Job(object):
 
         self.compressed_file = job.get('expected_filename', None)
         self.expected_files = job.get('expected_files', [])
-        self.output_files = job.get('output_files', [])
+        self.output_files = [settings.OUTPUT_FILENAME]
+        self.output_files.extend(job.get('output_files', []))
         self.command = job.get('command', [])
 
     @property
@@ -78,7 +79,7 @@ class Instance(object):
 
     @property
     def output_file(self):
-        return os.path.join(self.output_dir, settings.OUTPUT_FILENAME)
+        return os.path.join(self.test_dir, settings.OUTPUT_FILENAME)
 
     @property
     def output_dir(self):
@@ -155,7 +156,7 @@ class Instance(object):
             os.makedirs(self.output_dir)
 
         with working_directory(self.test_dir):
-            with codecs.open(self.output_file, 'w', 'utf-8') as f:
+            with codecs.open(settings.OUTPUT_FILENAME, 'w', 'utf-8') as f:
                 try:
                     return_code = subprocess.call(
                         command, stdout=f, stderr=subprocess.STDOUT)

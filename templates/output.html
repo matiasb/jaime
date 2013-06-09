@@ -18,12 +18,9 @@
 
 <p>
     <span class="label label-info">Download output file</span>
-    <a href="{{ url_for('output_file', slug=instance.job.slug, instance_id=instance.id, filename='output.log') }}">
-        job output
-    </a>
-
     {% for filename in instance.job.output_files %}
-        | <a href="{{ url_for('output_file', slug=instance.job.slug, instance_id=instance.id, filename=filename) }}">
+        {% if not loop.first %} | {% endif %}
+        <a href="{{ url_for('output_file', slug=instance.job.slug, instance_id=instance.id, filename=filename) }}">
             {{ filename }}
         </a>
     {% endfor %}
